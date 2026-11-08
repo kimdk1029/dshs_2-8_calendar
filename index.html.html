@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>대전대성고 2-8 캘린더</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f7f9;--surface:#fff;--ink:#1f2937;--muted:#6b7280;--line:#e5e7eb;--accent:#2f5bd9;--today:#eef2ff;--sel:#dbe4ff;
+--exam:#d64550;--perf:#d9801a;--event:#2f7f5f;--hw:#3b6fd4;--bday:#a846a8;--etc:#6b7280;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#111827;--surface:#1b2433;--ink:#f3f4f6;--muted:#9ca3af;--line:#2d3748;--today:#1e2a4a;--sel:#2b3d70;--accent:#7b9bff}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#111827;--surface:#1b2433;--ink:#f3f4f6;--muted:#9ca3af;--line:#2d3748;--today:#1e2a4a;--sel:#2b3d70;--accent:#7b9bff}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:16px;line-height:1.55}
+main{max-width:960px;margin:0 auto;padding:18px 12px 88px}
+h1{font-size:clamp(22px,5vw,30px);font-weight:700;margin:0;letter-spacing:-.02em}
+.sub{color:var(--muted);margin:2px 0 14px;font-size:15px}
+button,input,select,textarea{font:inherit;color:inherit}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;cursor:pointer;min-height:40px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ghost{border:0;background:none;color:var(--muted);padding:4px 8px;min-height:0}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.bar{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.bar h2{font-size:20px;margin:0 auto 0 0}
+.legend{display:flex;gap:4px 12px;flex-wrap:wrap;margin:0 0 10px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
+.layout{display:grid;gap:14px}
+@media (min-width:860px){.layout{grid-template-columns:1.7fr 1fr;align-items:start}}
+.cal,.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.cal{overflow:hidden}
+.dow,.grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.dow div{text-align:center;padding:8px 0;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line)}
+.dow div:first-child,.sun .num{color:var(--exam)}
+.dow div:last-child,.sat .num{color:var(--hw)}
+.day{min-height:78px;padding:4px;border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:transparent;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.day:nth-child(7n){border-right:0}
+.out{opacity:.4}
+.today{background:var(--today)}
+.today .num{color:var(--accent)}
+.sel{background:var(--sel);box-shadow:inset 0 0 0 2px var(--accent)}
+.num{font-size:13px;font-weight:700}
+.chip{font-size:11px;line-height:1.3;padding:1px 5px;border-radius:4px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.more{font-size:11px;color:var(--muted)}
+@media (max-width:560px){.day{min-height:58px}.chip{font-size:0;height:5px;padding:0}}
+.panel{padding:14px}
+.panel h3{margin:0 0 10px;font-size:17px}
+.ev{border-left:4px solid var(--etc);padding:8px 10px;margin:0 0 10px;background:var(--bg);border-radius:0 8px 8px 0}
+.ev b{display:block}
+.ev small{color:var(--muted)}
+.ev p{margin:4px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.ev .acts{float:right}
+.dd{display:inline-block;font-size:12px;font-weight:700;padding:0 7px;border-radius:10px;background:var(--accent);color:#fff;margin-left:6px}
+.dd.past{background:var(--line);color:var(--muted)}
+.photos{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.photos img{width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.empty{color:var(--muted);margin:0 0 10px;font-size:15px}
+.upcoming ul{list-style:none;padding:0;margin:0}
+.upcoming li{margin:0 0 7px;font-size:15px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.warn{background:var(--today);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:14px}
+.fab{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));box-shadow:0 2px 10px rgba(0,0,0,.25);border-radius:24px;padding:10px 20px}
+dialog{border:0;border-radius:14px;padding:0;width:min(94vw,460px);max-height:90vh;background:var(--surface);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+form{display:grid;gap:10px;padding:16px}
+form h3{margin:0}
+label{font-size:14px;color:var(--muted);display:grid;gap:3px}
+input,select,textarea{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:9px 10px;width:100%}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap}
+.thumbs div{position:relative}
+.thumbs img{width:64px;height:64px;object-fit:cover;border-radius:8px}
+.thumbs button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:0;background:var(--exam);color:#fff;cursor:pointer;line-height:1}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.fbtns{display:flex;gap:8px;justify-content:flex-end}
+</style>
+</head>
+<body>
+<main>
+<h1>대전대성고 2학년 8반 캘린더</h1>
+<p class="sub">우리 반 일정은 같이 채워요. 날짜를 누르면 그날 일정을 볼 수 있어요.</p>
+<div id="warn" class="warn" hidden></div>
+<div class="bar"><h2 id="title"></h2><button class="btn" id="prev" aria-label="이전 달">‹</button><button class="btn" id="today">오늘</button><button class="btn" id="next" aria-label="다음 달">›</button></div>
+<div class="legend" id="legend"></div>
+<div class="layout">
+<section class="cal" aria-label="월간 캘린더"><div class="dow"><div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div></div><div class="grid" id="grid"></div></section>
+<aside>
+<div class="panel"><h3 id="dayTitle"></h3><div id="dayList"></div></div>
+<div class="panel upcoming" style="margin-top:14px"><h3>다가오는 일정</h3><ul id="upcoming"></ul></div>
+</aside>
+</div>
+<button class="btn primary fab" id="add">+ 일정 올리기</button>
+</main>
+<dialog id="dlg"><form id="form">
+<h3 id="fHead">일정 올리기</h3>
+<div class="row"><label>학번<input id="fNo" required inputmode="numeric" maxlength="5" placeholder="예: 20801"></label><label>이름<input id="fName" required maxlength="10"></label></div>
+<div class="row"><label>날짜<input id="fDate" type="date" required></label><label>종류<select id="fCat"></select></label></div>
+<label>일정 제목<input id="fTitle" required maxlength="40" placeholder="예: 수학 단원평가"></label>
+<label>일정 내용<textarea id="fMemo" rows="3" maxlength="500" placeholder="범위, 준비물, 장소 등"></textarea></label>
+<div id="photoBox"><label>사진 (최대 3장)<input id="fFile" type="file" accept="image/*" multiple></label><div class="thumbs" id="thumbs"></div></div>
+<p class="hint">학번과 이름, 사진은 반 친구들에게 보여요.</p>
+<div class="fbtns"><button type="button" class="btn" id="cancel">취소</button><button class="btn primary" id="save" type="submit">올리기</button></div>
+</form></dialog>
+<script>
+(function(){
+var CATS=[["exam","시험"],["perf","수행평가"],["event","행사"],["hw","숙제·준비물"],["bday","생일"],["etc","기타"]],cm={};
+CATS.forEach(function(c){cm[c[0]]=c[1]});
+var events=[],uid=null,isAdmin=false,canWrite=true,db=null,assets=null,local=true,editing=null,photos=[];
+var now=new Date(),view=new Date(now.getFullYear(),now.getMonth(),1),selected=iso(now);
+var $=function(i){return document.getElementById(i)};
+function pad(n){return n<10?"0"+n:""+n}
+function iso(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function esc(s){var d=document.createElement("div");d.textContent=s==null?"":s;return d.innerHTML}
+function col(k){return "var(--"+(cm[k]?k:"etc")+")"}
+function dday(s){var p=s.split("-"),t=new Date(+p[0],+p[1]-1,+p[2]),n=new Date(now.getFullYear(),now.getMonth(),now.getDate()),df=Math.round((t-n)/864e5);
+  return df===0?["D-DAY",""]:df>0?["D-"+df,""]:["D+"+(-df)," past"]}
+$("legend").innerHTML=CATS.map(function(c){return '<span><i style="background:'+col(c[0])+'"></i>'+c[1]+'</span>'}).join("");
+$("fCat").innerHTML=CATS.map(function(c){return '<option value="'+c[0]+'">'+c[1]+'</option>'}).join("");
+try{$("fNo").value=localStorage.getItem("c28-no")||"";$("fName").value=localStorage.getItem("c28-name")||""}catch(e){}
+function byDate(d){return events.filter(function(e){return e.date===d})}
+function render(){
+  var y=view.getFullYear(),m=view.getMonth();$("title").textContent=y+"년 "+(m+1)+"월";
+  var st=new Date(y,m,1-new Date(y,m,1).getDay()),h="",t=iso(now);
+  for(var i=0;i<42;i++){var d=new Date(st.getFullYear(),st.getMonth(),st.getDate()+i),k=iso(d),l=byDate(k);
+    var c="day"+(d.getMonth()!==m?" out":"")+(k===t?" today":"")+(k===selected?" sel":"")+(d.getDay()===0?" sun":"")+(d.getDay()===6?" sat":"");
+    var ch=l.slice(0,3).map(function(e){return '<span class="chip" style="background:'+col(e.cat)+'">'+esc(e.title)+'</span>'}).join("");
+    if(l.length>3)ch+='<span class="more">+'+(l.length-3)+'</span>';
+    h+='<button class="'+c+'" data-d="'+k+'" aria-label="'+(d.getMonth()+1)+'월 '+d.getDate()+'일, 일정 '+l.length+'개"><span class="num">'+d.getDate()+'</span>'+ch+'</button>';}
+  $("grid").innerHTML=h;renderDay();renderUp();
+}
+function renderDay(){
+  var p=selected.split("-"),d=new Date(+p[0],+p[1]-1,+p[2]);
+  $("dayTitle").textContent=(d.getMonth()+1)+"월 "+d.getDate()+"일 ("+"일월화수목금토"[d.getDay()]+")";
+  var l=byDate(selected);
+  if(!l.length){$("dayList").innerHTML='<p class="empty">올라온 일정이 없어요. 아래 버튼으로 올려 보세요.</p>';return}
+  $("dayList").innerHTML=l.map(function(e){
+    var ok=canWrite&&((uid&&e.uid===uid)||isAdmin),dd=dday(e.date);
+    var ph=(e.photos||[]).map(function(x){return '<a href="'+esc(x.url)+'" target="_blank" rel="noopener"><img src="'+esc(x.url)+'" alt="첨부 사진" loading="lazy"></a>'}).join("");
+    return '<div class="ev" style="border-left-color:'+col(e.cat)+'">'+(ok?'<span class="acts"><button class="btn ghost" data-edit="'+e.id+'">수정</button><button class="btn ghost" data-del="'+e.id+'">삭제</button></span>':'')+
+    '<b>'+esc(e.title)+'<span class="dd'+dd[1]+'">'+dd[0]+'</span></b><small>'+cm[e.cat]+' · '+esc(e.no)+' '+esc(e.name)+'</small>'+(e.memo?'<p>'+esc(e.memo)+'</p>':'')+(ph?'<div class="photos">'+ph+'</div>':'')+'</div>';
+  }).join("");
+}
+function renderUp(){
+  var t=iso(now),u=events.filter(function(e){return e.date>=t}).sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0}).slice(0,6);
+  $("upcoming").innerHTML=u.length?u.map(function(e){var p=e.date.split("-");return '<li><span class="dot" style="background:'+col(e.cat)+'"></span>'+(+p[1])+'/'+(+p[2])+' '+esc(e.title)+'<span class="dd">'+dday(e.date)[0]+'</span></li>'}).join(""):'<li class="empty">예정된 일정이 없어요.</li>';
+}
+$("grid").onclick=function(ev){var b=ev.target.closest("[data-d]");if(!b)return;selected=b.getAttribute("data-d");var p=selected.split("-");if(+p[1]-1!==view.getMonth())view=new Date(+p[0],+p[1]-1,1);render()};
+$("prev").onclick=function(){view=new Date(view.getFullYear(),view.getMonth()-1,1);render()};
+$("next").onclick=function(){view=new Date(view.getFullYear(),view.getMonth()+1,1);render()};
+$("today").onclick=function(){view=new Date(now.getFullYear(),now.getMonth(),1);selected=iso(now);render()};
+function drawThumbs(){$("thumbs").innerHTML=photos.map(function(x,i){return '<div><img src="'+esc(x.url)+'" alt="첨부 사진"><button type="button" data-rm="'+i+'" aria-label="사진 빼기">×</button></div>'}).join("")}
+function openForm(e){
+  editing=e||null;photos=e?(e.photos||[]).slice():[];
+  $("fHead").textContent=e?"일정 수정":"일정 올리기";$("save").textContent=e?"저장하기":"올리기";
+  $("fDate").value=e?e.date:selected;$("fCat").value=e?e.cat:"exam";$("fTitle").value=e?e.title:"";$("fMemo").value=e?e.memo||"":"";
+  if(e){$("fNo").value=e.no||"";$("fName").value=e.name||""}
+  $("fFile").value="";$("photoBox").hidden=!assets;drawThumbs();$("dlg").showModal();
+}
+$("add").onclick=function(){if(!canWrite){alert("이 링크로는 일정을 올릴 수 없어요. 기여자 권한이 필요해요.");return}openForm()};
+$("cancel").onclick=function(){$("dlg").close()};
+$("thumbs").onclick=function(ev){var b=ev.target.closest("[data-rm]");if(!b)return;photos.splice(+b.getAttribute("data-rm"),1);drawThumbs()};
+function shrink(f){return createImageBitmap(f).then(function(bm){var s=Math.min(1,1280/Math.max(bm.width,bm.height)),c=document.createElement("canvas");c.width=Math.round(bm.width*s);c.height=Math.round(bm.height*s);c.getContext("2d").drawImage(bm,0,0,c.width,c.height);return new Promise(function(r){c.toBlob(r,"image/jpeg",.82)})})}
+$("fFile").onchange=async function(){
+  var fs=Array.prototype.slice.call(this.files).slice(0,3-photos.length);if(!fs.length||!assets)return;
+  $("save").disabled=true;$("save").textContent="사진 올리는 중…";
+  try{for(var i=0;i<fs.length;i++){var b=await shrink(fs[i]),r=await assets.upload(b);photos.push({id:r.id,url:r.url})}drawThumbs()}
+  catch(e){alert("사진을 올리지 못했어요. 다른 사진으로 다시 해 보세요.")}
+  $("save").disabled=false;$("save").textContent=editing?"저장하기":"올리기";this.value="";
+};
+$("form").onsubmit=function(ev){
+  ev.preventDefault();
+  var rec={date:$("fDate").value,cat:$("fCat").value,title:$("fTitle").value.trim(),memo:$("fMemo").value.trim(),no:$("fNo").value.trim(),name:$("fName").value.trim(),photos:photos,uid:editing?editing.uid:(uid||""),at:editing?editing.at:Date.now()};
+  if(!rec.title||!rec.no||!rec.name)return;
+  try{localStorage.setItem("c28-no",rec.no);localStorage.setItem("c28-name",rec.name)}catch(e){}
+  var id=editing?editing.id:"e"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  function done(){selected=rec.date;var p=rec.date.split("-");view=new Date(+p[0],+p[1]-1,1);$("dlg").close();render()}
+  if(db){var ow=editing?editing.uid:uid;if(!ow){alert("로그인한 계정으로만 올릴 수 있어요.");return}rec.id=id;mutate(ow,function(a){var i=a.findIndex(function(x){return x.id===id});if(i<0)a.push(rec);else a[i]=rec}).then(done).catch(function(){alert("저장하지 못했어요. 쓰기 권한을 확인해 주세요.")})}
+  else{rec.id=id;events=events.filter(function(x){return x.id!==id});events.push(rec);done()}
+};
+$("dayList").onclick=function(ev){
+  var b=ev.target.closest("button");if(!b)return;
+  var ed=b.getAttribute("data-edit"),dl=b.getAttribute("data-del");
+  if(ed){var e=events.filter(function(x){return x.id===ed})[0];if(e)openForm(e)}
+  if(dl){if(!confirm("이 일정을 삭제할까요?"))return;
+    if(db){var e2=events.filter(function(x){return x.id===dl})[0];if(e2)mutate(e2.uid,function(a){var i=a.findIndex(function(x){return x.id===dl});if(i>=0)a.splice(i,1)}).catch(function(){alert("삭제하지 못했어요.")})}
+    else{events=events.filter(function(x){return x.id!==dl});render()}}
+};
+function mutate(ow,fn){var r=db.doc("events/"+ow);return r.get().then(function(s){var a=((s.exists&&s.data().items)||[]).slice();fn(a);return r.set({items:a})})}
+function warn(t){$("warn").hidden=!t;$("warn").textContent=t||""}
+render();warn("저장소에 연결하는 중이에요. 연결되지 않으면 이 화면에서만 보여요.");
+if(window.claude&&claude.use){
+  Promise.all([claude.use("db"),claude.use("user"),claude.use("assets")]).then(async function(r){
+    if(!r[0]){warn("저장소에 연결되지 않아 이 화면에서만 보여요. 새로고침하면 사라져요.");return}
+    db=r[0];assets=r[2];local=false;warn("");
+    var u=r[1];if(u){try{uid=await u.id()}catch(e){}try{isAdmin=!!(u.canEdit&&u.canEdit())}catch(e){}try{if(u.can&&u.can("data.write")===false)canWrite=false}catch(e){}}
+    var tm=setTimeout(function(){warn("일정을 아직 불러오지 못했어요. 네트워크를 확인해 주세요.")},10000);
+    db.collection("events").onSnapshot(function(s){clearTimeout(tm);if(!s.metadata.fromCache)warn("");
+      events=[];s.docs.forEach(function(x){var o=x.data()||{};(o.items||[]).forEach(function(it){it.uid=x.id;events.push(it)})});render()},
+      function(){clearTimeout(tm);warn("일정을 불러오지 못했어요. 로그인과 공유 설정을 확인해 주세요.")});
+  }).catch(function(){warn("저장소에 연결되지 않아 이 화면에서만 보여요.")});
+}else warn("저장소에 연결되지 않아 이 화면에서만 보여요. 새로고침하면 사라져요.");
+})();
+</script>
+</body>
+</html>
